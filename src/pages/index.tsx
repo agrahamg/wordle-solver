@@ -36,7 +36,7 @@ export default function Home() {
   filteredWords.sort();
 
   return (
-    <main className="container mx-auto flex items-center flex-col space-y-2">
+    <main className="container mx-auto flex items-center flex-col space-y-2 p-2">
       <Head>
         <title>Wordle solver</title>
         <meta name="description" content="Helps to solve wordles" />
@@ -48,28 +48,25 @@ export default function Home() {
       <div>Regex:{regex.source}</div>
 
       <div>
-        Word Length:
+        <label htmlFor="length">Word Length:</label>
         <input
+          id="length"
           className="border"
           style={{ width: "50px" }}
           type="number"
           value={wordLength}
           onChange={(event) => {
-            setWordLength(parseInt(event.currentTarget.value || "5"));
+            setWordLength(parseInt(event.currentTarget.value));
           }}
         />
       </div>
 
-      <div
-        className="grid gap-5"
-        style={{
-          gridTemplateColumns: `230px repeat(${correctLetterInputs.length}, 60px)`,
-          marginRight: "230px",
-        }}
-      >
-        <div className="text-right">Invalid Letters ⬜️:</div>
+      <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] md:mr-[210px] gap-3">
+        <label htmlFor="invalidLetters" className="md:text-right">
+          Invalid Letters ⬜️:
+        </label>
         <input
-          style={{ gridColumn: "2/-1" }}
+          id="invalidLetters"
           className="border"
           type="text"
           value={invalidLetters}
@@ -80,10 +77,10 @@ export default function Home() {
           }
         />
 
-        <div className="text-right">Incorrectly Placed Letters 🟨:</div>
+        <div className="md:text-right">Incorrectly Placed Letters 🟨:</div>
         {incorrectlyPlacedLetterInputs}
 
-        <div className="text-right">Known Letters 🟩:</div>
+        <div className="md:text-right">Known Letters 🟩:</div>
         {correctLetterInputs}
       </div>
 
@@ -95,7 +92,7 @@ export default function Home() {
         {filteredWords.length === 1 ? "y" : "ies"}
       </div>
 
-      <div className="grid grid-cols-5 w-full text-center">
+      <div className="grid md:grid-cols-5  grid-cols-3 w-full text-center">
         {filteredWords.slice(0, possibleWordCount).map((word) => (
           <div key={word}>{word}</div>
         ))}

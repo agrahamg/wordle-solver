@@ -3,14 +3,11 @@ import { useState } from "react";
 import { buildRegex } from "../utils";
 import { useArrayInput } from "../hooks/useArrayInput";
 
-import rawWords from "../words.json";
-const words = rawWords as Array<string>;
+import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
-  const possibleWordCount = 500;
-
   const [invalidLetters, setInvalidLetters] = useState("");
-  const [wordLength, setWordLength] = useState(5);
+  const [wordLength, setWordLength] = useState<number | null>(5);
 
   const {
     value: incorrectlyPlacedLetters,
@@ -29,11 +26,6 @@ export default function Home() {
     incorrectlyPlacedLetters,
     correctLetters
   );
-
-  let filteredWords = words.filter(
-    (word) => word.length === wordLength && regex.test(word)
-  );
-  filteredWords.sort();
 
   return (
     <main className="container mx-auto flex items-center flex-col space-y-2 p-2">
@@ -54,9 +46,10 @@ export default function Home() {
           className="border"
           style={{ width: "50px" }}
           type="number"
-          value={wordLength}
+          value={`${wordLength}`}
           onChange={(event) => {
-            setWordLength(parseInt(event.currentTarget.value));
+            let num = parseInt(event.currentTarget.value);
+            isNaN(num) ? setWordLength(null) : setWordLength(num);
           }}
         />
       </div>
@@ -84,6 +77,36 @@ export default function Home() {
         {correctLetterInputs}
       </div>
 
+      <Words length={wordLength || 0} regex={regex} />
+    </main>
+  );
+}
+
+function Words({ length, regex }: { length: number; regex: RegExp }) {
+  const possibleWordCount = 500;
+
+  const { data: words } = useQuery(
+    ["words", length],
+    async () => {
+      const response = await fetch(`/api/words/${length}`);
+      return response.json() as Promise<string[]>;
+    },
+    {
+      cacheTime: Infinity,
+      staleTime: Infinity,
+      enabled: !!length,
+    }
+  );
+
+  if (!words) {
+    return null;
+  }
+
+  const filteredWords = words.filter((word) => regex.test(word));
+  filteredWords.sort();
+
+  return (
+    <>
       <div>
         {filteredWords.length > possibleWordCount
           ? `showing ${possibleWordCount} of `
@@ -97,6 +120,6 @@ export default function Home() {
           <div key={word}>{word}</div>
         ))}
       </div>
-    </main>
+    </>
   );
 }

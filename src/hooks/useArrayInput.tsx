@@ -10,13 +10,13 @@ function blankArray(length: number) {
 }
 
 export function useArrayInput(
-  length: number,
+  length: number | null,
   inputProps?: DetailedHTMLProps<
     InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
   >
 ) {
-  const state = useState(blankArray(length));
+  const state = useState(blankArray(length || 1));
   const [value, setValue] = state;
 
   const inputs = (
